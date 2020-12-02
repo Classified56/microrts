@@ -1,0 +1,33 @@
+# Rule set:
+# If we have any "light": send it to attack to the nearest enemy unit
+# If we have a base: train worker until we have 1 workers
+# If we have a barracks: train light
+# If we have a worker: do this if needed: build base, build barracks, harvest resources
+
+# Notes:
+# - Actions are of the form doXXX(UnitType)
+#
+# Actions that can be performed:
+# - doTrainWorker: trains a worker
+# - doTrainLight: trains a light unit
+# - doBuildBase: builds a base in a nearby position
+# - doBuildBarracks: builds a barracks in a nearby position
+# - doHarvest: sends a worker to harvest resources from a resource mine
+# - doAttack: attacks a nearby enemy
+#
+# Predefined predicates that need to be implemented:
+# - idle: whether the unit we are considering is idle
+# - own(UnitType): whether we own any unit of the specified type
+# - enoughResourcesFor(UnitType): whether we have enough resources for the specified unit type
+# - ~ means negation
+#
+# The idea here is:
+# - For each of the units we own try to execute the rules that match the unit type of the unit
+# - If any rule gets triggered, make the unit perform the action corresponding to the rule head
+
+doTrainWorker("Base") :- idle("Base");own("Base");enoughResourcesFor("Worker").
+doBuildBase("Worker") :- idle("Worker");own("Worker");~own("Base");enoughResourcesFor("Base").
+doBuildBarracks("Worker") :- idle("Worker");own("Worker");own("Base");~own("Barracks");enoughResourcesFor("Barracks").
+doHarvest("Worker") :- idle("Worker");own("Base").
+doTrainLight("Barracks") :- idle("Barracks");enoughResourcesFor("Light").
+doAttack("Light") :- idle("Light");own("Light").
